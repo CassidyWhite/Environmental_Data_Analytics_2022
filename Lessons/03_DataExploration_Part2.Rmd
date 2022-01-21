@@ -31,7 +31,7 @@ library(tidyverse)
 # 3. Import datasets
 USGS.flow.data <- read.csv("./Data/Processed/USGS_Site02085000_Flow_Processed.csv")
 
-#View(USGS.flow.data)
+View(USGS.flow.data)
 # Alternate option: click on data frame in Environment tab
 
 colnames(USGS.flow.data)
@@ -43,7 +43,8 @@ class(USGS.flow.data$datetime)
 
 USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%Y-%m-%d") 
 class(USGS.flow.data$datetime)
-
+summary(USGS.flow.data)
+USGS.flow.data$site_no <- as.factor(USGS.flow.data$site_no)
 ```
 
 
@@ -58,8 +59,9 @@ Note: each of these approaches utilize the package "ggplot2". We will be coverin
 Visualize count data for categorical variables. 
 
 ```{r, fig.height = 3, fig.width = 4}
+library(ggplot2)
 ggplot(USGS.flow.data, aes(x = discharge.mean.approval)) +
-  geom_bar()
+  geom_bar() #bar charts are for categorical data. Count by category
 ```
 
 ### Histogram (function: geom_histogram)
@@ -70,7 +72,7 @@ Visualize distributions of values for continuous numerical variables. What is ha
 #
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean))
-
+#histograms are for numerical data. Count by numerical interval.
 #
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean), binwidth = 10)
@@ -82,7 +84,7 @@ ggplot(USGS.flow.data) +
 #
 ggplot(USGS.flow.data, aes(x = discharge.mean)) +
   geom_histogram(binwidth = 10) + 
-  scale_x_continuous(limits = c(0, 500))
+  scale_x_continuous(limits = c(0, 500)) #forces x axis to go from 0 to 500 so we can focus on where most of the data is
   
 #
 ggplot(USGS.flow.data) +
@@ -96,9 +98,9 @@ An alternate to a histogram is a frequency polygon graph (distributions of value
 ```{r, fig.height = 3, fig.width = 4}
 #
 ggplot(USGS.flow.data) +
-  geom_freqpoly(aes(x = gage.height.mean), bins = 50) +
-  geom_freqpoly(aes(x = gage.height.min), bins = 50, color = "darkgray") +
-  geom_freqpoly(aes(x = gage.height.max), bins = 50,  lty = 2) +
+  geom_freqpoly(aes(x = gage.height.mean), bins = 50, color = "darkgreen",  lty = 2) +
+  geom_freqpoly(aes(x = gage.height.min), bins = 50, color = "red") +
+  geom_freqpoly(aes(x = gage.height.max), bins = 50, color = "blue") +
   scale_x_continuous(limits = c(0, 10))
 
 #
@@ -130,11 +132,13 @@ ggplot(USGS.flow.data) +
 #
 ggplot(USGS.flow.data) +
   geom_boxplot(aes(x = gage.height.mean, y = discharge.mean, group = cut_width(gage.height.mean, 1)))
-
+#showing the distribution in values across gage.height.mean
+#at low values of gage height, there is a tighter distribution of values
 #
 ggplot(USGS.flow.data) +
   geom_violin(aes(x = gage.height.mean.approval, y = gage.height.mean), 
               draw_quantiles = c(0.25, 0.5, 0.75))
+#shows the range of values and distribution of values within the interquartile ranges
 ```
 
 ### Scatterplot (function: geom_point)
