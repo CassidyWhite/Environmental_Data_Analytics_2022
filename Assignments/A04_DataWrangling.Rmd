@@ -28,7 +28,7 @@ The completed exercise is due on Monday, Feb 7 @ 7:00pm.
 getwd()
 library(tidyverse)
 library(lubridate)
-library(lubridate)
+library(dplyr)
 O3.2018<-read.csv("../Data/Raw/EPAair_O3_NC2018_raw.csv")
 O3.2019<-read.csv("../Data/Raw/EPAair_O3_NC2019_raw.csv")
 PM25.2018<-read.csv("../Data/Raw/EPAair_PM25_NC2018_raw.csv")
@@ -97,21 +97,24 @@ write.csv(PM25.2019, row.names = FALSE, file = "../Data/Processed/EPAair_PM25_NC
 EPAair<-rbind(O3.2018, O3.2019, PM25.2018, PM25.2019)
 #8
 EPAair.refined<-EPAair %>%
-  filter(Site.Name == c("Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", "West Johnston Co.", "Garinger High School", "Castle Hayne", "Pitt Agri. Center", "Bryson City", "Millbrook School")) %>%
+  filter(Site.Name %in% c("Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", "West Johnston Co.", "Garinger High School", "Castle Hayne", "Pitt Agri. Center", "Bryson City", "Millbrook School")) %>%
   group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>%
-  summarise(meantemp = mean(DAILY_AQI_VALUE),
+  summarize(meanAQI = mean(DAILY_AQI_VALUE),
             meanlat = mean(SITE_LATITUDE),
-            meanlong = mean(SITE_LONGITUDE)) #%>%
-  #mutate(month = month("Date"), year = year("Date"))
+            meanlong = mean(SITE_LONGITUDE)) %>%
+  mutate(Month = month(Date)) %>% 
+  mutate(Year = year(Date))
 
-#mutate isn't working and I'm getting too few results
 dim(EPAair.refined)
+
 #9
-
+EPAair.spread<-pivot_wider(EPAair, names_from = AQS_PARAMETER_DESC, values_from = DAILY_AQI_VALUE)
+EPAair.refined.spread<-pivot_wider(EPAair.refined, names_from = AQS_PARAMETER_DESC, values_from = meanAQI)
 #10
-
+dim(EPAair.spread)
+dim(EPAair.refined.spread)
 #11
-
+write.csv(EPAair.refined.spread, row.names = FALSE, file = "../Data/Processed/EPAair_O3_PM25_NC2122_Processed.csv")
 ```
 
 
@@ -125,10 +128,15 @@ dim(EPAair.refined)
 
 ```{r}
 #12(a,b)
-
-
+EPAair.summaries <- 
+  EPAair.refined.spread %>%
+  group_by(Site.Name, Month, Year) %>%
+  summarise(meanPM2.5 = mean(PM2.5), 
+           meanOzone = mean(Ozone)) #%>%
+  #na.omit(meanPM2.5 & meanOzone)
+view(EPAair.summaries)
 #13
-
+dim(EPAair.summaries)
 ```
 
 14. Why did we use the function `drop_na` rather than `na.omit`?
