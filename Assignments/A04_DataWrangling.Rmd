@@ -132,8 +132,10 @@ EPAair.summaries <-
   EPAair.refined.spread %>%
   group_by(Site.Name, Month, Year) %>%
   summarise(meanPM2.5 = mean(PM2.5), 
-           meanOzone = mean(Ozone)) #%>%
+           meanOzone = mean(Ozone)) %>%
   #na.omit(meanPM2.5 & meanOzone)
+  #drop_na(meanPM2.5 & meanOzone)
+  #filter(!is.na(meanPM2.5) & !is.na(meanOzone))
 view(EPAair.summaries)
 #13
 dim(EPAair.summaries)
