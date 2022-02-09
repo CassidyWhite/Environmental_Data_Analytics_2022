@@ -132,10 +132,10 @@ EPAair.summaries <-
   EPAair.refined.spread %>%
   group_by(Site.Name, Month, Year) %>%
   summarise(meanPM2.5 = mean(PM2.5), 
-           meanOzone = mean(Ozone)) %>%
-  #na.omit(meanPM2.5 & meanOzone)
+           meanOzone = mean(Ozone)) #%>%
   #drop_na(meanPM2.5 & meanOzone)
   #filter(!is.na(meanPM2.5) & !is.na(meanOzone))
+#EPAair.summaries[!with(EPAair.summaries, is.na("meanPM2.5") & is.na("meanOzone")),]  
 view(EPAair.summaries)
 #13
 dim(EPAair.summaries)
@@ -143,4 +143,4 @@ dim(EPAair.summaries)
 
 14. Why did we use the function `drop_na` rather than `na.omit`?
 
-> Answer: 
+> Answer: The function na.omit() will drop all rows with an NA whereas drop_na allows you to select which columns to drop NAs from.

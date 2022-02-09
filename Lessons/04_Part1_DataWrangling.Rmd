@@ -158,7 +158,8 @@ Mutating allows us to add new columns that are functions of existing columns. Op
 ```{r}
 
 NTL.phys.data.temps <- mutate(NTL.phys.data.temps, temperature_F = (temperature_C*9/5) + 32)
-
+#adds a new column where temperature is converted to Fahrenheit
+view(NTL.phys.data.temps)
 ```
 
 ## Lubridate
@@ -168,12 +169,13 @@ A package that makes coercing date much easier is `lubridate`. A guide to the pa
 ```{r}
 # add a month column to the dataset
 NTL.phys.data.PeterPaul1 <- mutate(NTL.phys.data.PeterPaul1, month = month(sampledate)) 
-
+view(NTL.phys.data.PeterPaul1)
 # reorder columns to put month with the rest of the date variables
 NTL.phys.data.PeterPaul1 <- select(NTL.phys.data.PeterPaul1, lakeid:daynum, month, sampledate:comments)
+#select can be used to pull columns or to reorder columns
 
 # find out the start and end dates of the dataset
-interval(NTL.phys.data.PeterPaul1$sampledate[1], NTL.phys.data.PeterPaul1$sampledate[21613])
+interval(NTL.phys.data.PeterPaul1$sampledate[1], NTL.phys.data.PeterPaul1$sampledate[21613]) #if dates are already in ascending order
 interval(first(NTL.phys.data.PeterPaul1$sampledate), last(NTL.phys.data.PeterPaul1$sampledate))
 ```
 
@@ -185,12 +187,12 @@ Sometimes we will want to perform multiple functions on a single dataset on our 
 Let's say we want to take our raw dataset (NTL.phys.data), *then* filter the data for Peter and Paul lakes, *then* select temperature and observation information, and *then* add a column for temperature in Fahrenheit: 
 
 ```{r}
-NTL.phys.data.processed <- 
-  NTL.phys.data %>%
-  filter(lakename == "Paul Lake" | lakename == "Peter Lake") %>%
-  select(lakename, sampledate:temperature_C) %>%
-  mutate(temperature_F = (temperature_C*9/5) + 32)
-  
+NTL.phys.data.processed <- #rename the new dataset
+  NTL.phys.data %>% #select the entire dataset
+  filter(lakename == "Paul Lake" | lakename == "Peter Lake") %>% #filter for Peter and Paul Lakes
+  select(lakename, sampledate:temperature_C) %>% #select rows with lakename and temperature information
+  mutate(temperature_F = (temperature_C*9/5) + 32) #add a new column where temperature in Fahrenheit is calculated
+view(NTL.phys.data.processed)  
 ```
 
 Notice that we did not place the dataset name inside the wrangling function but rather at the beginning.

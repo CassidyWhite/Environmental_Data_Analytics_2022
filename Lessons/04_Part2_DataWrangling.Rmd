@@ -195,7 +195,7 @@ NTL.PeterPaul.summaries <-
             sdTN = sd(tn_ug), 
             meanTP = mean(tp_ug), 
             sdTP = sd(tp_ug))
-#where did the lakename and month come into play? We used group_by and I thought we would then get multiple summaries for each month for each lake
+view(NTL.PeterPaul.summaries)
 write.csv(NTL.PeterPaul.summaries, row.names = FALSE, 
           file ="./Data/Processed/NTL-LTER_Lake_Summaries_PeterPaul_Processed.csv")
 
