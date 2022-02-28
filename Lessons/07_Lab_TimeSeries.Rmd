@@ -56,9 +56,9 @@ Temp_BR <- read.csv("./Data/Raw/tas_1901_2016_BRA.csv", stringsAsFactors = TRUE)
 Rainfall_BR_processed <-
   Rainfall_BR %>% 
   rename( Rainfall = Rainfall....MM.) %>% 
-  separate(Statistics,c("Null","Month","Null2")," ") %>% 
+  separate(Statistics,c("Null","Month","Null2")," ") %>% #Similar to text to column function in Excel
   mutate( Date = my(paste0(Month,"-",Year))) %>% 
-  select(Date,Rainfall)
+  select(Date,Rainfall) # we created columns Null and Null2 for the space at the beginning of the column and the Average at the end of the text in the statistics column and then we get rid of them by only selecting the columns we want in the final dataset
 
 #Exercise 3: Repeat exercise 2 to the temperature dataset.
 Temp_BR_processed <-
@@ -82,25 +82,30 @@ BRA_complete <- inner_join(Rainfall_BR_processed,Temp_BR_processed)
 
 #Exercise 5: Check if there is any missing data for both temperature and rainfall series.
 
-
-
+summary(BRA_complete$Rainfall)
+summary(BRA_complete$Temperature_C)
 
 #Exercise 6: Plot both series over time on separate plots. Add a trend line using geom_smooth(). Can you say something about the trend just by visualizing the data?
 
-
-
-
-
-
+ggplot(BRA_complete, aes(x = Date,y= Rainfall)) +
+  geom_line()+
+  labs(x="Date", y="Rainfall") +
+  geom_smooth(method = lm)
+ggplot(BRA_complete, aes(x=Date, y=Temperature_C))+
+  geom_line()+
+  labs(x="Date", y="Temperature (C)") +
+  geom_smooth(method = lm)
 ```
 
 ## Creating time series objects
 
 ```{r}
 #Exercise 7: Create a time series objects for each series using ts(). Make sure you specify the starting point and frequency.
+fmonth<-month(first(BRA_complete$Date))
+fyear<-year(first(BRA_complete$Date))
 
-
-
+Rainfall.ts<-ts(BRA_complete$Rainfall, start = c(fmonth, fyear), frequency = 12)
+Temperature.ts<-ts(BRA_complete$Temperature_C, start = c(fmonth, fyear), frequency = 12)
 ```
 
 
@@ -120,27 +125,45 @@ The `stl` function decomposes the time series object into its component parts. W
 
 # Exercise 8: Use the stl() function to decompose both series. 
 # Visualize the decomposed series using plot(). What components can you identify?
+#stl decomposes the data in seasonal, trend, and random (remainder) terms
 
+Rainfall.Decomposed<-stl(Rainfall.ts, s.window = "periodic")
+Temperature.Decomposed<-stl(Temperature.ts, s.window = "periodic")
 
+plot(Rainfall.Decomposed)
+plot(Temperature.Decomposed)
 
-
-
+#Plot 1: Observed Data
+#Plot 2: Seasonal Data
+#Plot 3: Trend Component of the Data
+#Plot 4: Random Component of the Data
 
 # Exercise 9: Use the times series object generated with the stl() to extract the 
 # components of each series and turn them into data frames.
 
-
-
-
-
+Rainfall_Components <- as.data.frame(Rainfall.Decomposed$time.series[,1:3])
+Temperature_Components<-as.data.frame(Temperature.Decomposed$time.series[,1:3])
 
 # Exercise 10: Visualize how the trend maps onto the data for both series
 
+Rainfall_Components <- mutate(Rainfall_Components,
+        Observed = BRA_complete$Rainfall,     
+        Date = BRA_complete$Date)
+Temperature_Components<-mutate(Temperature_Components,
+        Observed = BRA_complete$Temperature_C,
+        Date = BRA_complete$Date)
 
+ggplot(Rainfall_Components) +
+  geom_line(aes(y = Observed, x = Date),  size = 0.25) +
+  geom_line(aes(y = trend, x = Date), color = "#c13d75ff") +
+  geom_hline(yintercept = 0, lty = 2) + #geometric horizontol line at y=0
+  ylab(expression("Raifnall"))
 
-
-
-
+ggplot(Temperature_Components) +
+  geom_line(aes(y = Observed, x = Date),  size = 0.25) +
+  geom_line(aes(y = trend, x = Date), color = "#c13d75ff") +
+  geom_hline(yintercept = 0, lty = 2) + #geometric horizontol line at y=0
+  ylab(expression("Temperature (C)"))
 ```
 
 
@@ -158,13 +181,23 @@ Monotonic trends are a gradual shift over time that is consistent in direction. 
 
 # Exercise 11: Apply one of the trend detection test to the original data set. Remember that the data has seasonal component, which test can be applied in this case?
 
+Rainfall.trend<-Kendall::SeasonalMannKendall(Rainfall.ts)
+Temperature.trend<-Kendall::SeasonalMannKendall(Temperature.ts)
 
+Rainfall.trend
+summary(Rainfall.trend)
 
+Temperature.trend
+summary(Rainfall.trend)
 
+Rainfall.trend2<-trend::smk.test(Rainfall.ts)
+Temperature.trend2<-trend::smk.test(Rainfall.ts)
 
+Rainfall.trend2
+summary(Rainfall.trend2)
 
-
-
+Temperature.trend2
+summary(Temperature.trend2)
 
 # Exercise 12: Now remove the seasonality and apply another test. Compare the results with what you obtained on Exercise 9.
 
