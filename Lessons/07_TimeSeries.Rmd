@@ -21,7 +21,7 @@ Today we will work with two datasets. The USGS dataset on discharge at the Eno R
 
 #Questions: 
 #1. Why would we want to detrend the data? That sounds like twisting the data to me.
-#2. When runnign the Seasonal MannKendall test, if only one season were significant, would it still say there is a trend in the data? What's the cutoff?
+#2. When running the Seasonal MannKendall test, if only one season were significant, would it still say there is a trend in the data? What's the cutoff?
 
 library(tidyverse)
 library(lubridate)
