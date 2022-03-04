@@ -47,6 +47,7 @@ theme_set(mytheme)
 
 ```{r, message = FALSE}
 #2
+
 Ozone2010<-read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2010_raw.csv", stringsAsFactors =  TRUE)
 Ozone2011<-read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2011_raw.csv", stringsAsFactors =  TRUE)
 Ozone2012<-read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2012_raw.csv", stringsAsFactors =  TRUE)
@@ -96,7 +97,7 @@ ggplot(GaringerOzone, aes(x=Date, y=Daily.Max.8.hour.Ozone.Concentration))+
   geom_smooth(method = lm)
 ```
 
->Answer: According to the linear trend fitted to the data, the plot does not suggest a trend over time.
+>Answer: According to the linear trend fitted to the data, the plot suggests a slightly downward trend over time.
 
 ## Time Series Analysis
 
