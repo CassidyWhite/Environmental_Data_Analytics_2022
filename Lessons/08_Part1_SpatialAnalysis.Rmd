@@ -139,7 +139,7 @@ mapview(sfc_GraingerHall)
 sf_GraingerHall <- st_as_sf(sfc_GraingerHall)
 sf_GraingerHall$Name = 'Grainger Hall'
 mapview(sf_GraingerHall)
-
+#How you might create a spatial dataframe from scratch. Assign attributes to coordinates.
 ```
 
 ## 2.5 Summary
@@ -236,6 +236,7 @@ ggplot() +
   geom_sf(data = GasPlants.utm,color='red',shape='O') 
 
 #Create a distance matrix between the point in each dataset
+#pairwise means we want to create a matrix
 distance_matrix <- st_distance(EPAair.sf.utm, GasPlants.utm, pairwise=T)
 
 #Compute the mean of each row (each EPA site)
