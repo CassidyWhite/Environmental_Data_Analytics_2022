@@ -120,8 +120,8 @@ colnames(gages_sf)
 ```{r Plot the spatial features}
 #13. Plot the gage locations atop the county features
 ggplot()+
-  geom_sf(data = counties_sf, aes(color = "blue"))+
-  geom_sf(data = gages_sf, aes(color = "green"))+
+  geom_sf(data = counties_sf, fill = "blue")+
+  geom_sf(data = gages_sf, color = "green")+
   ggtitle("NWIS Gage Locations in Nebraska")
 ```
 
@@ -189,8 +189,8 @@ gages_sf_utm<-st_transform(gages_sf, crs = 32614)
 
 #21 Plot the data
 ggplot()+
-  geom_sf(data = counties_sf_utm, aes(color = "blue"))+
-  geom_sf(data = gages_sf_utm, aes(color = "green"))+
+  geom_sf(data = counties_sf_utm, fill = "blue")+
+  geom_sf(data = gages_sf_utm, color = "green")+
   ggtitle("NWIS Gage Locations in Nebraska")
 ```
 
