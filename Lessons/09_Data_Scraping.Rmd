@@ -95,7 +95,7 @@ With this id known, we can extract it's value in a two-step process. First we us
 ```{r scrape.some.data}
 the_registrant <- webpage %>% 
   html_nodes(".table tr:nth-child(1) td:nth-child(2)") %>% 
-  html_text()
+  html_text() #says "give me the text associated with the above node"
 the_registrant
 ```
 
@@ -105,7 +105,7 @@ In the code chunk below, see if you can extract the Facility Name and Facility T
 ```{r scraping.exercise.1}
 the_facility_name <- webpage %>% 
   html_nodes("tr:nth-child(2) th+ .left:nth-child(2)") %>% 
-  html_text()
+  html_text() #says "give me the text associated with the above node"
 the_facility_name
 
 the_facility_type <- webpage %>% 
@@ -142,7 +142,7 @@ df_withdrawals <- data.frame("Month" = rep(1:12),
 
 #Modify the dataframe to include the facility name and type as well as the date (as date object)
 df_withdrawals <- df_withdrawals %>% 
-  mutate(Registrant = !!the_registrant,
+  mutate(Registrant = !!the_registrant, #"!!" tells it to set as a variable, not a string
          Facility_name = !!the_facility_name,
          Facility_type = !!the_facility_type,
          Date = my(paste(Month,"-",Year)))
@@ -202,7 +202,7 @@ df_withdrawals <- data.frame("Month" = rep(1:12),
 ggplot(df_withdrawals,aes(x=Date,y=Avg_Withdrawals_mgd)) + 
   geom_line() + 
   geom_smooth(method="loess",se=FALSE) +
-  labs(title = paste("2020 Water usage data for",the_registrant),
+  labs(title = paste(the_year, "Water usage data for",the_registrant),
        subtitle = the_facility_name,
        y="Withdrawal (mgd)",
        x="Date")
@@ -262,7 +262,7 @@ view(the_df)
 ## 2.3 Use iterators to retrieve data for a set of years
 R can iterate using either "lapply" or Purrrs' "map" functions. 
 ```{r scrape.multiple.years.of.data}
-#Set the inputs to scrape years 2015 to 2020 for the site "0004-0001"
+#Set the inputs to scrape years 2018 to 2020 for the site "0004-0001"
 the_years = rep(2018:2020)
 my_facility = '0004-0001'
 
@@ -282,7 +282,7 @@ ggplot(the_df,aes(x=Date,y=Avg_Withdrawals_mgd)) +
   geom_line() + 
   geom_smooth(method="loess",se=FALSE) +
   labs(title = paste("2020 Water usage data for",the_registrant),
-       subtitle = the_facility_name,
+       subtitle = the_facility,
        y="Withdrawal (mgd)",
        x="Date")
 ```
@@ -324,7 +324,7 @@ This website gives a nice example of this: <https://dcl-prog.stanford.edu/purrr-
 
 ```{r Scrape.all.2020.data}
 
-#Subset the facilities
+#Subset the facilities by a random sample of 20
 the_facility_ids_subset <-  sample(the_facility_ids,20)
 
 #Create a list of the year we want, the same length as the vector above
@@ -338,7 +338,7 @@ df_2020 <- bind_rows(dfs_2020)
 
 
 #Plot
-ggplot(df_2020,aes(y = Avg_Withdrawals_mgd, x=Facility_type)) +
+ggplot(df_2020,aes(y = Avg_Withdrawals_mgd, x=as.factor(Month))) +
   geom_boxplot()
 
 ```
