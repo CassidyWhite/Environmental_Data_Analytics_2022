@@ -190,6 +190,7 @@ the_facility_type <- the_website %>% html_nodes(the_facility_id_tag) %>% html_te
 the_withdrawals <- the_website %>% html_nodes(the_data_tag) %>% html_text()
 
 #Construct a dataframe from the scraped data
+## the "!!" says look for an object called "the_registrant" and use that value instead of naming everything "the_registrant"
 df_withdrawals <- data.frame("Month" = rep(1:12),
                              "Year" = rep(the_year,12),
                              "Avg_Withdrawals_mgd" = as.numeric(the_withdrawals)) %>% 
