@@ -32,6 +32,7 @@ This exercise accompanies the lessons in Environmental Data Analytics on data sc
 #1
 
 getwd()
+setwd("C:/Users/cassi/OneDrive - Duke University/Documents/School/Grad School/Spring 2022/Environmental Data Analytics/Environmental_Data_Analytics_2022/Assignments")
 library(tidyverse)
 library(rvest)
 library(ggplot2)
@@ -127,7 +128,7 @@ scrape.it <- function(the_year, the_pswid){
    withdrawals_function_df<-data.frame(
     "Month" = c("Jan", "May", "Sep", "Feb", "Jun", "Oct", "Mar", "Jul", "Nov", "Apr", "Aug", "Dec"),
     "Year" = rep(the_year,12),
-    "Max Daily Withdrawals" = max.withdrawals.mgd, 
+    "Max Daily Withdrawals" = as.numeric(gsub(",","", max.withdrawals.mgd)), 
     "System.Name" = water.system.name,
     "PSWID" = pswid,
     "Ownership" = ownership) %>%
@@ -150,13 +151,13 @@ df2015<-scrape.it(2015,"03-32-010")
 
 8. Use the function above to extract data for Asheville (PWSID = 01-11-010) in 2015. Combine this data with the Durham data collected above and create a plot that compares the Asheville to Durham's water withdrawals.
 
-```{r fetch.and.plot.Durham.2015.data}
+```{r}
 #8
 dfAsheville<-scrape.it(2015, "01-11-010")
 df<-rbind(df2015, dfAsheville)
 
-ggplot(df, aes(x=System.Name, y = Max.Daily.Withdrawals))+
-  geom_boxplot()
+ggplot(df, aes(x=Date, y=Max.Daily.Withdrawals, color = System.Name))+
+  geom_point()
 ```
 
 
@@ -177,11 +178,11 @@ Ash2018<-scrape.it(2018, "01-11-010")
 Ash2019<-scrape.it(2019, "01-11-010")
 Ash2020<-scrape.it(2020, "01-11-010")
 
-dfAsh<-rbind(Ash2010, Ash2011, Ash2012, Ash2013, Ash2014, Ash2015, Ash2016, Ash2017, Ash2018, Ash2019, Ash2020)
+dfAsh<-rbind(Ash2010, Ash2011, Ash2012, Ash2013, Ash2014, Ash2015, Ash2016, Ash2017, Ash2018, Ash2019, Ash2020) %>%
+  arrange(Date) 
 
-ggplot(dfAsh, aes(x=month(Date), y=Max.Daily.Withdrawals))+
+ggplot(dfAsh, aes(x=Date, y=Max.Daily.Withdrawals))+
   geom_point()+
-  xlim(0,12)+
   geom_smooth(method = lm, se = F)
   
 min(dfAsh$Max.Daily.Withdrawals)

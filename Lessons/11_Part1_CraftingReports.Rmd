@@ -65,6 +65,10 @@ See: <https://rmarkdown.rstudio.com> and class recording.
 
 <Fill in our discussion below with bullet points. Use italics and bold for emphasis (hint: use the cheat sheets or `Help` →`Markdown Quick Reference` to figure out how to make bold and italic text).> 
 
+*You can have code and text together so it can be a good tool for teaching and for producing reports.
+*It is good for __reproducability__ and team __collaboration__.
+*It is good for debugging because you can _separate code into chunks_.
+*You can include results in the reports that are _automatically updated_ as the code updates and avoids need to copying and pasting. Improves __version control__ of graphics and results.
 
 ## TEXT EDITING CHALLENGE
 
@@ -76,6 +80,9 @@ Create a table below that details the example datasets we have been using in cla
 ### Installing packages
 
 Create an R chunk below that installs the package `knitr`. Instead of commenting out the code, customize the chunk options such that the code is not evaluated (i.e., not run).
+```{r eval=FALSE, include=FALSE}
+install.packages("knitr")
+```
 
 
 ### Setup
@@ -85,7 +92,23 @@ Create an R chunk below called "setup" that checks your working directory, loads
 Load the NTL-LTER_Lake_Nutrients_Raw dataset, display the head of the dataset, and set the date column to a date format.
 
 Customize the chunk options such that the code is run but is not displayed in the final document.
+```{r include=FALSE}
+getwd()
+library(tidyverse)
+library(lubridate)
+library(knitr)
 
+mytheme <- theme_classic() +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "right")
+theme_set(mytheme)
+```
+
+```{r echo=FALSE}
+NTLdata<-read.csv("./Data/Raw/NTL-LTER_Lake_Nutrients_Raw.csv")
+NTLdata$sampledate<-as.Date(NTLdata$sampledate, format = "%m/%d/%y")
+head(NTLdata)
+```
 
 ### Data Exploration, Wrangling, and Visualization
 
