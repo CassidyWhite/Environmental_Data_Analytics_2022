@@ -65,14 +65,30 @@ See: <https://rmarkdown.rstudio.com> and class recording.
 
 <Fill in our discussion below with bullet points. Use italics and bold for emphasis (hint: use the cheat sheets or `Help` →`Markdown Quick Reference` to figure out how to make bold and italic text).> 
 
-*You can have code and text together so it can be a good tool for teaching and for producing reports.
-*It is good for __reproducability__ and team __collaboration__.
-*It is good for debugging because you can _separate code into chunks_.
-*You can include results in the reports that are _automatically updated_ as the code updates and avoids need to copying and pasting. Improves __version control__ of graphics and results.
+- You can have code and text together so it can be a good tool for teaching and for producing reports.
+* It is good for __reproducability__ and team __collaboration__.
+* It is good for debugging because you can _separate code into chunks_.
+* You can include results in the reports that are _automatically updated_ as the code updates and avoids need to copying and pasting. 
+* Improves __version control__ of graphics and results.
 
 ## TEXT EDITING CHALLENGE
 
 Create a table below that details the example datasets we have been using in class. The first column should contain the names of the datasets and the second column should include some relevant information about the datasets. (Hint: use the cheat sheets to figure out how to make a table in Rmd)
+
+```{r}
+dataset<-c("EPAair_O3", "EPAair_PM2.5", "NEON_NIWO_Litter", "NTL-LTER_Lake_Nutrients")
+data.description<-c("Ozone concentration data from the EPA", 
+"Particulate matter 2.5 concentration data from the EPA", 
+"Forest floor litter data", "Nutrient concentrations at different lakes")
+data.df<-as.data.frame(data.description, dataset)
+data.df<-cbind(rownames(data.df), data.df)
+rownames(data.df)<-NULL
+colnames(data.df)<-c("Data", "Description")
+
+library(knitr)
+data.description.table<-kable(data.df)
+data.description.table
+```
 
 
 ## R CHUNK EDITING CHALLENGE
@@ -92,8 +108,9 @@ Create an R chunk below called "setup" that checks your working directory, loads
 Load the NTL-LTER_Lake_Nutrients_Raw dataset, display the head of the dataset, and set the date column to a date format.
 
 Customize the chunk options such that the code is run but is not displayed in the final document.
-```{r include=FALSE}
+```{r setup, include=FALSE}
 getwd()
+setwd("C:/Users/cassi/OneDrive - Duke University/Documents/School/Grad School/Spring 2022/Environmental Data Analytics/Environmental_Data_Analytics_2022/Assignments")
 library(tidyverse)
 library(lubridate)
 library(knitr)
@@ -105,7 +122,7 @@ theme_set(mytheme)
 ```
 
 ```{r echo=FALSE}
-NTLdata<-read.csv("./Data/Raw/NTL-LTER_Lake_Nutrients_Raw.csv")
+NTLdata<-read.csv("../Data/Raw/NTL-LTER_Lake_Nutrients_Raw.csv")
 NTLdata$sampledate<-as.Date(NTLdata$sampledate, format = "%m/%d/%y")
 head(NTLdata)
 ```
@@ -118,17 +135,70 @@ Create an R chunk below to create a processed dataset do the following operation
 -   Include only surface samples (depth = 0 m)
 -   Drop rows with missing data
 
+```{r process data}
+NTLdata.processed<-NTLdata %>%
+  select(-c(lakeid, depth_id, comments)) %>%
+  filter(depth == 0)%>%
+  drop_na()
+```
+
 Create a second R chunk to create a summary dataset with the mean, minimum, maximum, and standard deviation of total nitrogen concentrations for each lake. Create a second summary dataset that is identical except that it evaluates total phosphorus. Customize the chunk options such that the code is run but not displayed in the final document.
+
+```{r summary, include=FALSE}
+NTLdata.summary.TN<-NTLdata.processed %>%
+  group_by(lakename)%>%
+  select(-c(tp_ug:po4)) %>%
+  summarise(
+    meanTN = mean(tn_ug),
+    minTN = min(tn_ug),
+    maxTN = max(tn_ug),
+    stdevTN = sd(tn_ug))
+
+NTLdata.summary.TP<-NTLdata.processed %>%
+  group_by(lakename)%>%
+  select(-c(tn_ug,nh34:po4)) %>%
+  summarise(
+    meanTP = mean(tp_ug),
+    minTP = min(tp_ug),
+    maxTP = max(tp_ug),
+    stdevTP = sd(tp_ug))
+```
+
 
 Create a third R chunk that uses the function `kable` in the knitr package to display two tables: one for the summary dataframe for total N and one for the summary dataframe of total P. Use the `caption = " "` code within that function to title your tables. Customize the chunk options such that the final table is displayed but not the code used to generate the table.
 
+```{r tables, echo=FALSE}
+TN.table<-kable(NTLdata.summary.TN, caption = "Summary Statistics for Total Nitrogen in Lakes")
+TN.table
+TP.table<-kable(NTLdata.summary.TP, caption = "Summary Statistics for Total Phosphorus in Lakes")
+TP.table
+```
+
+
 Create a fourth and fifth R chunk that generates two plots (one in each chunk): one for total N over time with different colors for each lake, and one with the same setup but for total P. Decide which geom option will be appropriate for your purpose, and select a color palette that is visually pleasing and accessible. Customize the chunk options such that the final figures are displayed but not the code used to generate the figures. In addition, customize the chunk options such that the figures are aligned on the left side of the page. Lastly, add a fig.cap chunk option to add a caption (title) to your plot that will display underneath the figure.
+
+```{r echo=FALSE, fig.align='left', fig.cap= "Total nitrogen concentrations in ug over time by lake."}
+ggplot(NTLdata.processed, aes(x = sampledate, y = tn_ug, color = lakename)) +
+  geom_point()+
+  labs(x= "Sample Date", y = "Total Nitrogen (ug)")
+```
+
+```{r echo=FALSE, fig.align='left', fig.cap= "Total phosphorus concentrations in ug over time by lake."}
+ggplot(NTLdata.processed, aes(x = sampledate, y = tp_ug, color = lakename)) +
+  geom_point()+
+  labs(x= "Sample Date", y = "Total Phosphorus (ug)")
+```
 
 
 ### Communicating results
 
 Write a paragraph describing your findings from the R coding challenge above. This should be geared toward an educated audience but one that is not necessarily familiar with the dataset. Then insert a horizontal rule below the paragraph. Below the horizontal rule, write another paragraph describing the next steps you might take in analyzing this dataset. What questions might you be able to answer, and what analyses would you conduct to answer those questions?
 
+The results from the above coding exercise take the shape of two scatter plots that graph 1) total nitrogen (TN) over time and 2) total phosphorus (TP) over time for lakes without missing data values in the NTL-LTER data set. From these plots, we can see that East Long Lake, West Long Lake, and Peter Lake typically have higher TN and TP concentrations compared to the other lakes. We can also observe that both TN and TP increased over time, reaching a peak in 1997 before declining slightly.
+
+---
+
+A few next steps for analyzing this dataset would be to also create boxplots and violin plots for the data over time at the different lakes to look at the distribution of the data. We might also ask ourselves whether there is a statistical difference in the mean nutrient concentrations across the different lakes and run an ANOVA test. We might also wonder if the variation observed over time is significant, in which case we could run a time series analysis.
 
 ## KNIT YOUR PDF
 When you have completed the above steps, try knitting your PDF to see if all of the formatting options you specified turned out as planned. This may take some troubleshooting.
